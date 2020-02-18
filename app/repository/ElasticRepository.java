@@ -96,12 +96,13 @@ public class ElasticRepository {
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
-        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
+        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(),
+                SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
         // TODO
         // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+        // .post(Json.parse("{ ... }"))
+        // .thenApply(response -> {
+        // return ...
+        // });
     }
 }
