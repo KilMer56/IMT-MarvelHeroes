@@ -15,7 +15,47 @@ const insertHeroes = (db, callback) => {
         .pipe(csv())
         // Pour chaque ligne on créé un document JSON pour l'acteur correspondant
         .on('data', data => {
-            heroes.push(data);
+            const hero = {
+                id : data.id,
+                name : data.name,
+                imageUrl : data.imageUrl,
+                backgroundImageUrl : data.backgroundImageUrl,
+                externalLink : data.externalLink,
+                description : data.description,
+                teams : data.teams,
+                powers : data.powers,
+                partners : data.partners,
+                creators : data.creators,
+                appearance : {
+                    gender : data.gender,
+                    type : data.type,
+                    race : data["race"],
+                    height : data.height,
+                    weight : data.weight,
+                    eyeColor : data.eyeColor,
+                    hairColor : data.hairColor
+                },
+                identity : {
+                    secretIdentities : data.secretIdentities,
+                    birthPlace : data.birthPlace,
+                    occupation : data.occupation,
+                    aliases : data.aliases,
+                    alignment : data.alignment,
+                    firstAppearance : data.firstAppearance,
+                    yearAppearance : data.yearAppearance,
+                    universe : data.universe
+                },
+                skills : {
+                    intelligence : data.intelligence,
+                    strength : data.strength,
+                    speed : data.speed,
+                    durability : data.durability,
+                    combat : data.combat,
+                    power : data.power
+                }
+            };
+
+            heroes.push(hero);
         })
         // A la fin on créé l'ensemble des héros dans MongoDB
         .on('end', () => {
