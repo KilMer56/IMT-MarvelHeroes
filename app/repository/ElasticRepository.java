@@ -26,24 +26,26 @@ public class ElasticRepository {
         this.elasticConfiguration = configuration.elasticConfiguration;
     }
 
-
     public CompletionStage<PaginatedResults<SearchedHero>> searchHeroes(String input, int size, int page) {
-        return CompletableFuture.completedFuture(new PaginatedResults<>(3, 1, 1, Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan())));
+        return CompletableFuture
+                .completedFuture(new PaginatedResults<>(3, 1, 1, Arrays.asList(SearchedHeroSamples.IronMan(),
+                        SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan())));
         // TODO
         // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+        // .post(Json.parse("{ ... }"))
+        // .thenApply(response -> {
+        // return ...
+        // });
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
-        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
+        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(),
+                SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
         // TODO
         // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+        // .post(Json.parse("{ ... }"))
+        // .thenApply(response -> {
+        // return ...
+        // });
     }
 }
