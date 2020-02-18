@@ -19,10 +19,13 @@ public class Hero {
     public final Optional<String> description;
     public final HeroIdentity identity;
     public final HeroAppearance appearance;
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     public final List<String> teams;
     public final List<String> powers;
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     public final List<String> partners;
     public final HeroSkills skills;
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     public final List<String> creators;
 
     @JsonCreator
