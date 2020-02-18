@@ -19,11 +19,11 @@ let heroes = [];
 fs
     .createReadStream('./all-heroes.csv')
     .pipe(csv())
-    // Pour chaque ligne on créé un document JSON pour l'acteur correspondant
+    // Pour chaque ligne on créé un document JSON pour le héro correspondant
     .on('data', data => {
         heroes.push(data);
     })
-    // A la fin on créé l'ensemble des acteurs dans ElasticSearch
+    // A la fin on créé l'ensemble des héros dans ElasticSearch
     .on('end', () => {
         while (heroes.length) {
             esClient.bulk(createBulkInsertQuery(heroes.splice(0, 20000)), (err, resp) => {
