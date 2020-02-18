@@ -23,7 +23,7 @@ const insertHeroes = (db, callback) => {
                 externalLink : data.externalLink,
                 description : data.description,
                 teams : data.teams,
-                powers : data.powers,
+                powers : data.powers.length ? data.powers.split(',') : [],
                 partners : data.partners,
                 creators : data.creators,
                 appearance : {
