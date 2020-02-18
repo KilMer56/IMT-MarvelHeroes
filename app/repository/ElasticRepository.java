@@ -31,61 +31,28 @@ public class ElasticRepository {
     }
 
     public CompletionStage<PaginatedResults<SearchedHero>> searchHeroes(String input, int size, int page) {
-        /*String bodyQuery = "{\n" +
-                "  \"size\": " + size + ",\n" +
-                "  \"from\": " + size * (page - 1) + "";
-
-        // Add search with Fuziness feature
-        if(!input.equals("*") && input.length() > 0) {
-            bodyQuery += ",\n" +
-                    "  \"query\": \n" +
-                    "  { \n" +
-                    "    \"match\": \n" +
-                    "    { \n" +
-                    "      \"name\": \n" +
-                    "      {\n" +
-                    "        \"query\": \"" + input + "\",\n" +
-                    "        \"fuzziness\": \"2\"\n" +
-                    "      }\n" +
-                    "    } \n" +
-                    "  }";
-        }
-
-        bodyQuery += "\n}";*/
         String formattedInput = input.replace(' ', '*');
         String bodyQuery = "{\n" +
                 "  \"size\": " + size + ",\n" +
                 "  \"from\": "+ size * (page - 1) + ", \n" +
                 "  \"query\": {\n" +
                 "      \"query_string\" : {\n" +
-                "          \"fields\" : [\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^3\",\"description.keyword^2\",\"partners.keyword\"],\n" +
+                "          \"fields\" : [\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\",\"description.keyword^3\",\"partners.keyword\"],\n" +
                 "          \"query\" : \"*"+formattedInput+"*\"\n" +
                 "      }\n" +
                 "  }\n" +
                 "}";
 
-        System.out.println(bodyQuery);
-
         return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
                  .post(Json.parse(bodyQuery))
                  .thenApply(response -> {
-                     List<SearchedHero> heroes = new ArrayList<SearchedHero>();
 
                      JsonNode bodyNode = response.asJson();
-                     JsonNode sources = bodyNode.get("hits").get("hits");
+                     JsonNode source = bodyNode.get("hits").get("hits");
 
+                     List<SearchedHero> heroes = parseSource(source);
                      int total = bodyNode.get("hits").get("total").get("value").asInt();
                      int totalPage = (int) (total / size) + 1;
-
-                     if (sources.isArray()) {
-                         for (final JsonNode heroNode : sources) {
-                             JsonNode heroBody = heroNode.get("_source");
-                             ((ObjectNode)heroBody).put("id", heroNode.get("_id").asText());
-
-                             SearchedHero newHero = SearchedHero.fromJson(heroBody);
-                             heroes.add(newHero);
-                         }
-                     }
 
                      return new PaginatedResults<>(
                              total,
@@ -96,13 +63,40 @@ public class ElasticRepository {
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
-        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(),
-                SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
-        // TODO
-        // return wsClient.url(elasticConfiguration.uri + "...")
-        // .post(Json.parse("{ ... }"))
-        // .thenApply(response -> {
-        // return ...
-        // });
+        String formattedInput = input.replace(' ', '*');
+        String bodyQuery = "{\n" +
+                "  \"size\": 5,\n" +
+                "  \"query\": {\n" +
+                "      \"query_string\" : {\n" +
+                "          \"fields\" : [\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\"],\n" +
+                "          \"query\" : \"*"+formattedInput+"*\"\n" +
+                "      }\n" +
+                "  }\n" +
+                "}";
+
+        return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
+                .post(Json.parse(bodyQuery))
+                .thenApply(response -> {
+                    JsonNode bodyNode = response.asJson();
+                    JsonNode source = bodyNode.get("hits").get("hits");
+
+                    return parseSource(source);
+                });
+    }
+
+    private List<SearchedHero> parseSource(JsonNode source){
+        List<SearchedHero> heroes = new ArrayList<SearchedHero>();
+
+        if (source.isArray()) {
+            for (final JsonNode heroNode : source) {
+                JsonNode heroBody = heroNode.get("_source");
+                ((ObjectNode)heroBody).put("id", heroNode.get("_id").asText());
+
+                SearchedHero newHero = SearchedHero.fromJson(heroBody);
+                heroes.add(newHero);
+            }
+        }
+
+        return heroes;
     }
 }
