@@ -36,8 +36,8 @@ public class ElasticRepository {
                 "  \"from\": "+ size * (page - 1) + ", \n" +
                 "  \"query\": {\n" +
                 "      \"query_string\" : {\n" +
-                "          \"fields\" : [\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\",\"description.keyword^3\",\"partners.keyword\"],\n" +
-                "          \"query\" : \"*"+input.replaceAll(" ", "*")+"*\"\n" +
+                "          \"fields\" : [\"name^5\", \"aliases^4\", \"secretIdentities^4\",\"description^3\",\"partners\"],\n" +
+                "          \"query\" : \""+(input.length() == 0 ? '*' : input + '~')+"\"\n" +
                 "      }\n" +
                 "  }\n" +
                 "}";

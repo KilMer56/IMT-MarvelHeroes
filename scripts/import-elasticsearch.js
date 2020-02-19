@@ -6,11 +6,8 @@ const esClient = new Client({ node: 'http://localhost:9200' })
 const heroesIndexName = 'heroes'
 
 async function run() {
-    // Supprime l'indice existant
-    await esClient.indices.delete({ index: heroesIndexName });
 
-    // Création de l'indice
-    await esClient.indices.create({ index: heroesIndexName });
+    await checkIndices();
 
     // Ajout completion suggest
     await esClient.indices.put_mapping({
@@ -30,22 +27,31 @@ async function run() {
         .pipe(csv())
         // Pour chaque ligne on créé un document JSON pour le héro correspondant
         .on('data', data => {
-            data.suggest = [
-                {
-                    "input": data.name,
-                    "weight": 10
-                },
-                {
-                    "input": data.aliases,
-                    "weight": 5
-                },
-                {
-                    "input": data.secretIdentities,
-                    "weight": 5
-                }
-            ];
-
-            heroes.push(data);
+            heroes.push({
+                'id': data.id,
+                'name': data.name,
+                'description': data.description,
+                'imageUrl': data.imageUrl,
+                'secretIdentities': data.secretIdentities,
+                'aliases': data.aliases,
+                'partners': data.partners,
+                'universe': data.universe,
+                'gender': data.gender,
+                'suggest': [
+                    {
+                        "input": data.name,
+                        "weight": 10
+                    },
+                    {
+                        "input": data.aliases,
+                        "weight": 5
+                    },
+                    {
+                        "input": data.secretIdentities,
+                        "weight": 5
+                    },
+                ]
+            });
         })
         // A la fin on créé l'ensemble des héros dans ElasticSearch
         .on('end', () => {
@@ -70,6 +76,17 @@ function createBulkInsertQuery(heroes) {
     }, []);
 
     return { body };
+}
+
+// Check indices
+async function checkIndices() {
+    const { body: exist } = await esClient.indices.exists({ index: heroesIndexName });
+
+    if (exist) {
+        await esClient.indices.delete({ index: heroesIndexName });
+    }
+
+    await esClient.indices.create({ index: heroesIndexName });
 }
 
 run().catch(console.error());
