@@ -31,14 +31,13 @@ public class ElasticRepository {
     }
 
     public CompletionStage<PaginatedResults<SearchedHero>> searchHeroes(String input, int size, int page) {
-        String formattedInput = input.replace(' ', '*');
         String bodyQuery = "{\n" +
                 "  \"size\": " + size + ",\n" +
                 "  \"from\": "+ size * (page - 1) + ", \n" +
                 "  \"query\": {\n" +
                 "      \"query_string\" : {\n" +
                 "          \"fields\" : [\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\",\"description.keyword^3\",\"partners.keyword\"],\n" +
-                "          \"query\" : \"*"+formattedInput+"*\"\n" +
+                "          \"query\" : \"*"+input.replaceAll(" ", "*")+"*\"\n" +
                 "      }\n" +
                 "  }\n" +
                 "}";
@@ -63,24 +62,42 @@ public class ElasticRepository {
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
-        String formattedInput = input.replace(' ', '*');
         String bodyQuery = "{\n" +
-                "  \"size\": 5,\n" +
-                "  \"query\": {\n" +
-                "      \"query_string\" : {\n" +
-                "          \"fields\" : [\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\"],\n" +
-                "          \"query\" : \"*"+formattedInput+"*\"\n" +
-                "      }\n" +
-                "  }\n" +
+                "  \"suggest\": {\n" +
+                "        \"suggestion\" : {\n" +
+                "            \"prefix\" : \""+input+"\", \n" +
+                "            \"completion\" : { \n" +
+                "                \"field\" : \"suggest\" \n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
                 "}";
 
         return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
                 .post(Json.parse(bodyQuery))
                 .thenApply(response -> {
                     JsonNode bodyNode = response.asJson();
-                    JsonNode source = bodyNode.get("hits").get("hits");
+                    JsonNode suggestions = bodyNode.get("suggest").get("suggestion");
 
-                    return parseSource(source);
+                    List<SearchedHero> heroes = new ArrayList<SearchedHero>();
+
+                    if (suggestions.isArray()) {
+                        for (final JsonNode suggest : suggestions) {
+                            JsonNode options = suggest.get("options");
+
+                            if (options.isArray()) {
+                                for (final JsonNode option : options) {
+                                    JsonNode heroBody = option.get("_source");
+                                    ((ObjectNode) heroBody).put("id", option.get("_id").asText());
+
+                                    SearchedHero newHero = SearchedHero.fromJson(heroBody);
+                                    heroes.add(newHero);
+                                }
+                            }
+                        }
+                    }
+
+                    return heroes;
                 });
     }
 

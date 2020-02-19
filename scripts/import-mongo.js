@@ -46,12 +46,12 @@ const insertHeroes = (db, callback) => {
                     universe : data.universe
                 },
                 skills : {
-                    intelligence : data.intelligence,
-                    strength : data.strength,
-                    speed : data.speed,
-                    durability : data.durability,
-                    combat : data.combat,
-                    power : data.power
+                    intelligence : parseInt(data.intelligence),
+                    strength : parseInt(data.strength),
+                    speed : parseInt(data.speed),
+                    durability : parseInt(data.durability),
+                    combat : parseInt(data.combat),
+                    power : parseInt(data.power)
                 }
             };
 
@@ -65,13 +65,15 @@ const insertHeroes = (db, callback) => {
         });
 }
 
-MongoClient.connect(mongoUrl, (err, client) => {
+MongoClient.connect(mongoUrl, async (err, client) => {
     if (err) {
         console.error(err);
         throw err;
     }
 
     const db = client.db(dbName);
+
+    db.dropCollection(collectionName);
 
     insertHeroes(db, result => {
         console.log(`${result.insertedCount} heroes inserted`);
