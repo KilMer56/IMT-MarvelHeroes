@@ -12,8 +12,8 @@ async function run() {
     // Création de l'indice
     await esClient.indices.create({ index: heroesIndexName });
 
-    // Création suggest
-    await esClient.indices.put_mapping( {
+    // Ajout completion suggest
+    await esClient.indices.put_mapping({
         index: heroesIndexName,
         body: {
             properties: {
@@ -33,15 +33,15 @@ async function run() {
             data.suggest = [
                 {
                     "input": data.name,
-                    "weight" : 10
+                    "weight": 10
                 },
                 {
                     "input": data.aliases,
-                    "weight" : 5
+                    "weight": 5
                 },
                 {
                     "input": data.secretIdentities,
-                    "weight" : 5
+                    "weight": 5
                 }
             ];
 
