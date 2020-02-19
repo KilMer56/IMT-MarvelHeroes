@@ -16,42 +16,42 @@ const insertHeroes = (db, callback) => {
         // Pour chaque ligne on créé un document JSON pour l'acteur correspondant
         .on('data', data => {
             const hero = {
-                id : data.id,
-                name : data.name,
-                imageUrl : data.imageUrl,
-                backgroundImageUrl : data.backgroundImageUrl,
-                externalLink : data.externalLink,
-                description : data.description,
-                teams : data.teams,
-                powers : data.powers.length ? data.powers.split(',') : [],
-                partners : data.partners,
-                creators : data.creators,
-                appearance : {
-                    gender : data.gender,
-                    type : data.type,
-                    race : data["race"],
-                    height : data.height,
-                    weight : data.weight,
-                    eyeColor : data.eyeColor,
-                    hairColor : data.hairColor
+                id: data.id,
+                name: data.name,
+                imageUrl: data.imageUrl,
+                backgroundImageUrl: data.backgroundImageUrl,
+                externalLink: data.externalLink,
+                description: data.description,
+                teams: data.teams,
+                powers: data.powers.length ? data.powers.split(',') : [],
+                partners: data.partners,
+                creators: data.creators,
+                appearance: {
+                    gender: data.gender,
+                    type: data.type,
+                    race: data["race"],
+                    height: data.height,
+                    weight: data.weight,
+                    eyeColor: data.eyeColor,
+                    hairColor: data.hairColor
                 },
-                identity : {
-                    secretIdentities : data.secretIdentities,
-                    birthPlace : data.birthPlace,
-                    occupation : data.occupation,
-                    aliases : data.aliases,
-                    alignment : data.alignment,
-                    firstAppearance : data.firstAppearance,
-                    yearAppearance : data.yearAppearance,
-                    universe : data.universe
+                identity: {
+                    secretIdentities: data.secretIdentities,
+                    birthPlace: data.birthPlace,
+                    occupation: data.occupation,
+                    aliases: data.aliases,
+                    alignment: data.alignment,
+                    firstAppearance: data.firstAppearance,
+                    yearAppearance: data.yearAppearance,
+                    universe: data.universe
                 },
-                skills : {
-                    intelligence : parseInt(data.intelligence),
-                    strength : parseInt(data.strength),
-                    speed : parseInt(data.speed),
-                    durability : parseInt(data.durability),
-                    combat : parseInt(data.combat),
-                    power : parseInt(data.power)
+                skills: {
+                    intelligence: data.intelligence.length ? parseInt(data.intelligence, 10) : 0,
+                    strength: data.strength.length ? parseInt(data.strength, 10) : 0,
+                    speed: data.speed.length ? parseInt(data.speed, 10) : 0,
+                    durability: data.durability.length ? parseInt(data.durability, 10) : 0,
+                    combat: data.combat.length ? parseInt(data.combat, 10) : 0,
+                    power: data.power.length ? parseInt(data.power, 10) : 0
                 }
             };
 
